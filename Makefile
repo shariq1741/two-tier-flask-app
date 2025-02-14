@@ -1,48 +1,54 @@
-# Determine the operating system
-OS := $(shell uname)
-
-# Define Docker compose command
 DOCKER_COMPOSE := docker-compose
 
-# Define Docker compose service name
-SERVICE_NAME := web
+DETECTED_OS := $(shell uname)
 
-# Build target
-build:
-ifeq ($(OS),Linux)
-	@echo "Building for Linux"
-	$(DOCKER_COMPOSE) build
-endif
-ifeq ($(OS),Darwin)
-	@echo "Building for macOS"
-	$(DOCKER_COMPOSE) build
-endif
-ifeq ($(OS),Windows_NT)
-	@echo "Building for Windows"
-	# Add Windows-specific build commands if you wish :P
-endif
 
-# Run target
-run:
-ifeq ($(OS),Linux)
-	@echo "Running for Linux"
+BUILD :
+	@echo "Running in $(DETECTED_OS)"
+	@if [ $(DETECTED_OS) = Linux ];then \
+		echo "OS is linux and running docker compose"; \
+	else \
+		exit 1; \
+	fi 
+	@$(DOCKER_COMPOSE) build; \
+	if [ $$? -eq 0 ]; then \
+		echo "Docker compose success"; \
+	else \
+		echo "Docker compose failed"; \
+		exit 1; \
+	fi
+
+
+
+
+
+
+#	@echo "running in $(DETECTED_OS)"
+#	@$(DOCKER_COMPOSE) build
+#	status=$$?
+#	if [ $$status -eq 0 ]; then  
+#		echo "docker compose sucess" 
+#	else
+#		echo " dockercompose fail"
+#		exit 1
+#	fi
+
+#	 @$(DOCKER_COMPOSE) build && echo "docker compose success" || (echo "docker compose failed"; exit 1) 
+
+UP:
 	$(DOCKER_COMPOSE) up -d
-endif
-ifeq ($(OS),Darwin)
-	@echo "Running for macOS"
-	$(DOCKER_COMPOSE) up -d
-endif
-ifeq ($(OS),Windows_NT)
-	@echo "Running for Windows"
-	# Add Windows-specific run commands if you wish :P
-endif
 
-# Stop target
-stop:
+DOWN: 
 	$(DOCKER_COMPOSE) down
 
-# Clean target
-clean: stop
-	$(DOCKER_COMPOSE) rm -f
-	docker system prune -f
+CLEAN:
+	docker system prune
+
+
+
+
+
+
+
+
 
